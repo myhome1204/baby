@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:untitled3/screens/chatting/chat.dart';
-import 'package:untitled3/screens/profile/profile.dart';
+import 'package:untitled3/screens/profile/Profile.dart';
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
