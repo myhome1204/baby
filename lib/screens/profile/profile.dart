@@ -17,7 +17,7 @@ class _ProfileState extends State<Profile> {
 
 
           },
-          child: Text('마이페이지입니다. ??.',
+          child: Text('프로필이니다.',
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey,
