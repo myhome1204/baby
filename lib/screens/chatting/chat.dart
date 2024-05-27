@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 void main() => runApp(Chat());
 
 const String _name = "Jerry";
+const String yourname = "other";
 
 class Chat extends StatelessWidget {
   @override
@@ -20,9 +21,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
-
-  final List<ChatMessage> _messages = <ChatMessage>[];
-  final TextEditingController _textController = TextEditingController();
+  final List<ChatMessage> _messages = <ChatMessage>[]; // 채팅 메시지를 저장하는 리스트
+  final TextEditingController _textController = TextEditingController(); // 메시지 입력 필드의 텍스트를 제어하는 컨트롤러
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class ChatScreenState extends State<ChatScreen> {
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
-                icon: Icon(Icons.send),
+                icon: Icon(Icons.send, color: Colors.red),
                 onPressed: () => _handleSubmitted(_textController.text),
               ),
             ),
@@ -110,43 +110,63 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _handleSubmitted(String text) {
-    _textController.clear();
+  void _handleSubmitted(String text) { // 텍스트를 매개변수로 받아 메시지를 처리
+    _textController.clear(); // 텍스트 필드 비우기.
     var message = ChatMessage(
       text: text,
+      isUserMessage: true, // 사용자 메시지로 설정,true면 사용자,false면 상대
     );
     setState(() {
-      _messages.insert(0, message);
+      _messages.insert(0, message); // 상태를 갱신하여 새로운 메시지를 리스트의 첫 번째 위치에 추가
     });
   }
 }
 
 class ChatMessage extends StatelessWidget {
-  ChatMessage({required this.text});
+  ChatMessage({required this.text, required this.isUserMessage});
   final String text;
+  final bool isUserMessage; // 사용자인지 상대인지 나타내는 변수
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end, // 오른쪽 정렬
+        mainAxisAlignment: isUserMessage ? MainAxisAlignment.end : MainAxisAlignment.start, // 사용자 메시지는 오른쪽 정렬, 다른 메시지는 왼쪽 정렬
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          if (!isUserMessage) // 사용자 메시지가 아닐 때만 아바타 표시
+            Container(
+              margin: const EdgeInsets.only(right: 16.0),
+              child: CircleAvatar(child: Text(yourname[0])),
+            ),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end, // 오른쪽 정렬
+            crossAxisAlignment: isUserMessage ? CrossAxisAlignment.end : CrossAxisAlignment.start, // 사용자 메시지는 오른쪽 정렬, 다른 메시지는 왼쪽 정렬
             children: <Widget>[
-              Text(_name, style: Theme.of(context).textTheme.headlineSmall),
+              if (!isUserMessage) // 사용자 메시지가 아닐 때만 이름 표시
+                Text(yourname, style: Theme.of(context).textTheme.headlineSmall),
               Container(
                 margin: const EdgeInsets.only(top: 5.0),
-                child: Text(text),
+                padding: const EdgeInsets.all(10.0), // 메시지 박스의 패딩
+                decoration: BoxDecoration(
+                  color: isUserMessage ? Colors.red : Colors.white, // 사용자 메시지는 빨간색, 상대 메시지는 흰색 박스
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    color: isUserMessage ? Colors.white : Colors.black, // 사용자 메시지는 흰색, 다른 메시지는 검은색
+                  ),
+                  softWrap: true, // 텍스트 줄바꿈 설정
+                ),
               ),
             ],
           ),
-          Container(
-            margin: const EdgeInsets.only(left: 16.0),
-            child: CircleAvatar(child: Text(_name[0])),
-          ),
+          if (isUserMessage)
+            Container(
+              margin: const EdgeInsets.only(left: 16.0),
+              child: CircleAvatar(child: Text(_name[0])),
+            ),
         ],
       ),
     );

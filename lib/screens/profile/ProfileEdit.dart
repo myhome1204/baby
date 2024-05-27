@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:untitled3/screens/profile/jerrymain.dart';
 import 'package:untitled3/screens/profile/MailEdit.dart';
 
-void main() {
-  runApp(MyApp());
-}
 
 class ProfileEdit extends StatelessWidget {
   @override
