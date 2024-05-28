@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:untitled3/screens/login/login.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+
 
 
 void main() async {

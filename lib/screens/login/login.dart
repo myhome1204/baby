@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
-import 'package:untitled3/firebase_auth_remote_data_source.dart';
 import 'package:untitled3/screens/home/home.dart';
 import 'package:untitled3/screens/sign_up/sign_first.dart';
 import 'package:firebase_core/firebase_core.dart ';
@@ -50,8 +49,6 @@ class _LoginState extends State<Login> {
       print(response.body);
     }
   }
-
-
   Future<void> _saveAutoLoginInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('autoLogin', isChecked);
@@ -75,37 +72,7 @@ class _LoginState extends State<Login> {
       }
     }
   }
-  // Future<void> _checkLoginStatus(BuildContext context) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String? accessToken = prefs.getString('kakao_access_token');
-  //   if (accessToken != null) {
-  //     try {
-  //       // 서버에 액세스 토큰의 유효성 확인 요청
-  //       final firebaseToken = await _sendAuthCodeToServer(accessToken);
-  //       await firebase.FirebaseAuth.instance.signInWithCustomToken(firebaseToken);
-  //
-  //       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home()));
-  //     } catch (e) {
-  //       print('자동 로그인 실패: $e');
-  //       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
-  //     }
-  //   } else {
-  //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Login()));
-  //   }
-  // }
-  // Future<String> _sendAuthCodeToServer(String accessToken) async {
-  //   final response = await http.post(
-  //     Uri.parse('YOUR_SERVER_ENDPOINT'), // 파이어베이스 서버의 엔드포인트
-  //     headers: {'Content-Type': 'application/json'},
-  //     body: jsonEncode({'token': accessToken}),
-  //   );
-  //
-  //   if (response.statusCode == 200) {
-  //     return jsonDecode(response.body)['firebase_token'];
-  //   } else {
-  //     throw Exception('서버로 인증 코드 전송 실패');
-  //   }
-  // }
+
   Future<String> _sendAuthCodeToServer(String accessToken) async {
     try {
       final response = await http.post(
