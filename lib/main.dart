@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:untitled3/screens/login/login.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+
+void main() async {
   KakaoSdk.init(
     nativeAppKey : '네이티브앱키',
-    javaScriptAppKey: '자바스크립트키',
+    javaScriptAppKey: '자바스크립트앱키',
+  );
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
 }
