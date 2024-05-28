@@ -11,9 +11,7 @@ void main() async {
     javaScriptAppKey: '자바스크립트앱키',
   );
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
   runApp(const MyApp());
 }
 
