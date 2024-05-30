@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 void main() => runApp(Chat());
 
@@ -25,6 +27,42 @@ class ChatScreenState extends State<ChatScreen> {
   final TextEditingController _textController = TextEditingController(); // 메시지 입력 필드의 텍스트를 제어하는 컨트롤러
   final FocusNode _focusNode = FocusNode(); // FocusNode를 추가하여 포커스 제어
   bool _isUserMessage = true; // 메시지가 사용자 메시지인지 여부를 나타내는 변수
+  SharedPreferences? _prefs;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages();
+  }
+
+  Future<void> _loadMessages() async {
+    _prefs = await SharedPreferences.getInstance();
+    String? messagesString = _prefs?.getString('messages');
+    if (messagesString != null) {
+      List<dynamic> messagesJson = jsonDecode(messagesString);
+      setState(() {
+        _messages.addAll(messagesJson.map((json) => ChatMessage.fromJson(json)).toList());
+      });
+    }
+  }
+
+  Future<void> _saveMessages() async {
+    List<Map<String, dynamic>> messagesJson = _messages.map((message) => message.toJson()).toList();
+    await _prefs?.setString('messages', jsonEncode(messagesJson));
+  }
+
+  void _handleSubmitted(String text) {
+    _textController.clear();
+    var message = ChatMessage(
+      text: text,
+      isUserMessage: _isUserMessage,
+    );
+    setState(() {
+      _messages.insert(0, message);
+      _isUserMessage = !_isUserMessage;
+    });
+    _saveMessages();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,24 +155,26 @@ class ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
-
-  void _handleSubmitted(String text) { // 텍스트를 매개변수로 받아 메시지를 처리
-    _textController.clear(); // 텍스트 필드 비우기.
-    var message = ChatMessage(
-      text: text,
-      isUserMessage: _isUserMessage, // 사용자 메시지 여부 설정
-    );
-    setState(() {
-      _messages.insert(0, message); // 상태를 갱신하여 새로운 메시지를 리스트의 첫 번째 위치에 추가
-      _isUserMessage = !_isUserMessage; // 메시지를 보낼 때마다 isUserMessage 변수를 번갈아 변경
-    });
-  }
 }
 
 class ChatMessage extends StatelessWidget {
   ChatMessage({required this.text, required this.isUserMessage});
   final String text;
   final bool isUserMessage; // 사용자인지 상대인지 나타내는 변수
+
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'isUserMessage': isUserMessage,
+    };
+  }
+
+  static ChatMessage fromJson(Map<String, dynamic> json) {
+    return ChatMessage(
+      text: json['text'],
+      isUserMessage: json['isUserMessage'],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
