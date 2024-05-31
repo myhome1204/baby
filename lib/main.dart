@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:untitled3/screens/login/login.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
-void main() {
+
+
+
+void main() async {
   KakaoSdk.init(
     nativeAppKey : '네이티브앱키',
-    javaScriptAppKey: '자바스크립트키',
+    javaScriptAppKey: '자바스크립트앱키',
   );
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const MyApp());
 }
 

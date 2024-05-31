@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled3/screens/home/home.dart';
-import 'package:untitled3/screens/sing_up/sign_second.dart';
+import 'package:untitled3/screens/sign_up/sign_second.dart';
 
 class SignUpFourth extends StatefulWidget {
   @override

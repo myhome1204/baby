@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import 'package:untitled3/models/Service/ApiService.dart';
+
 void main() => runApp(Chat());
 
 const String _name = "Jerry";
 const String yourname = "other";
+String userMessage = "";
+String aiMessage = "";
 
 class Chat extends StatelessWidget {
   @override
@@ -23,6 +27,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
+  final apiService = ApiService();
   final List<ChatMessage> _messages = <ChatMessage>[]; // 채팅 메시지를 저장하는 리스트
   final TextEditingController _textController = TextEditingController(); // 메시지 입력 필드의 텍스트를 제어하는 컨트롤러
   final FocusNode _focusNode = FocusNode(); // FocusNode를 추가하여 포커스 제어
@@ -30,11 +35,27 @@ class ChatScreenState extends State<ChatScreen> {
   SharedPreferences? _prefs;
 
   @override
-  void initState() {
+  void initState() {/*_loadMessages와 _saveMessages 메서드를 추가하여 메시지를 로드하고 저장
+    _loadMessages는 SharedPreferences에서 메시지 리스트를 불러오고 _saveMessages는 메시지를 저장*/
     super.initState();
     _loadMessages();
   }
 
+  //_isUserMessage 이새끼가 true인지부터 확인
+  //그게 맞으면 sendMessage 실행 비동기로 해야 돼요
+
+  void sendMessage(String message) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    final response = await apiService.sendMessage(message,token!!);
+    if(response.statusCode == 200){
+      aiMessage = response.body ;
+      // aiMessage이거를 화면에 띄우는 작업 함수로만들던
+      // 로그 저장하는 작업
+      // _isUserMessage True false 바꾸기
+    }
+  }
   Future<void> _loadMessages() async {
     _prefs = await SharedPreferences.getInstance();
     String? messagesString = _prefs?.getString('messages');
@@ -56,7 +77,7 @@ class ChatScreenState extends State<ChatScreen> {
     var message = ChatMessage(
       text: text,
       isUserMessage: _isUserMessage,
-    );
+    );//_handleSubmitted 메서드에서 메시지를 추가할 때마다 _saveMessages를 호출하여 로컬에 메시지를 저장
     setState(() {
       _messages.insert(0, message);
       _isUserMessage = !_isUserMessage;
@@ -163,7 +184,7 @@ class ChatMessage extends StatelessWidget {
   final bool isUserMessage; // 사용자인지 상대인지 나타내는 변수
 
   Map<String, dynamic> toJson() {
-    return {
+    return {//ChatMessage 클래스에 toJson 및 fromJson 메서드를 추가하여 메시지를 JSON으로 변환하고 JSON에서 객체를 생성할 수 있도록 함
       'text': text,
       'isUserMessage': isUserMessage,
     };

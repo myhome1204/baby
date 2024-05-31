@@ -1,0 +1,38 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "baby-monk",
+          "appId": "1:38212389400:android:9230d0ef8d40bdaec4516d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "baby-monk",
+          "configurations": {
+            "android": "1:38212389400:android:9230d0ef8d40bdaec4516d",
+            "ios": "1:38212389400:ios:eabf751a63c70f62c4516d",
+            "macos": "1:38212389400:ios:eabf751a63c70f62c4516d",
+            "web": "1:38212389400:web:1ddbc1565c61fbb5c4516d",
+            "windows": "1:38212389400:web:d0b69703e89f246dc4516d"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}
