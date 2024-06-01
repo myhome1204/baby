@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:untitled3/screens/home/home.dart';
 import 'package:untitled3/screens/sign_up/sign_first.dart';
-import 'package:firebase_core/firebase_core.dart ';
-import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -21,7 +19,7 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    // _loadAutoLoginInfo();
+    _loadAutoLoginInfo();
   }
   final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -31,7 +29,7 @@ class _LoginState extends State<Login> {
     final response = await apiService.logIn(id,password);
     print("id : ${id}");
     print("password : ${password}");
-    if (response.statusCode == 200) {
+      if (response.statusCode == 200) {
       // 로그인 성공
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('로그인성공')));
       print('로그인 성공');
@@ -97,112 +95,112 @@ class _LoginState extends State<Login> {
 
   // final _firbaseAuthDataSource = FirebaseAuthRemoteDataSource();
   User? user;
-  Future<void> signWithKakao() async {
-    bool isInstalled = await isKakaoTalkInstalled();
-    // 카카오 로그인 구현 예제
-    // 카카오톡 실행 가능 여부 확인
-    // 카카오톡 실행이 가능하면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
-    if (await isKakaoTalkInstalled()) {
-      try {
-        await UserApi.instance.loginWithKakaoTalk();
-        print('카카오톡으로 로그인 성공');
-      } catch (error) {
-        print('카카오톡으로 로그인 실패 $error');
-
-        // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
-        // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
-        if (error is PlatformException && error.code == 'CANCELED') {
-          return;
-        }
-        // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
-        try {
-          await UserApi.instance.loginWithKakaoAccount();
-          // 토큰을 받은 후의 로직 추가
-          print('카카오계정으로 로그인 성공22');
-
-        } catch (error) {
-          print('카카오계정으로 로그인 실패 $error');
-          print(await KakaoSdk.origin);
-        }
-      }
-    } else {
-      try {
-        await UserApi.instance.loginWithKakaoAccount();
-        OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-        print("카카오톡 로그인 성공 ${token.accessToken}");
-
-        // Firebase 서버로 인증 코드 전송
-        final firebaseToken = await _sendAuthCodeToServer(token.accessToken);
-        print("Firebase Custom Token 받음: $firebaseToken");
-
-        // Firebase에 로그인
-        await firebase.FirebaseAuth.instance.signInWithCustomToken(firebaseToken);
-        print("Firebase 로그인 성공");
-
-        // SharedPreferences에 액세스 토큰 저장
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setString('kakao_access_token', token.accessToken);
-        print("액세스 토큰 저장 성공");
-        String accessToken = token.accessToken;
-        String? refreshToken = token.refreshToken;
-        OAuthToken token1 = await UserApi.instance
-            .loginWithKakaoAccount(prompts: [Prompt.login]);
-        user = await UserApi.instance.me();
-
-        // final customToken = await _firbaseAuthDataSource.createCustomToken({
-        //   'uid' : user!.id.toString(),
-        //   'displayName' : user!.kakaoAccount!.profile!.nickname,
-        //   if (user!.kakaoAccount!.email != null)
-        //     'email': '${user!.id}@example.com',
-        //   if (user!.kakaoAccount!.profile!.profileImageUrl != null)
-        //     'photoURL': user!.kakaoAccount!.profile!.profileImageUrl!,
-        // });
-        // await firebase.FirebaseAuth.instance.signInWithCustomToken(customToken);
-        print('로그인 성공 ${token1.accessToken}');
-        print('카카오계정으로 로그인 성공33');
-        AccessTokenInfo tokenInfo =
-        await UserApi.instance.accessTokenInfo();
-        print('토큰 유효성 체크 성공 ${tokenInfo.id} ${tokenInfo.expiresIn}');
-        print(accessToken);
-        print(refreshToken);
-      } catch (error) {
-        print('카카오계정으로 로그인 실패 $error');
-        print(await KakaoSdk.origin);
-      }
-    }
-    // if (await AuthApi.instance.hasToken()) {
-    //   try {
-    //     AccessTokenInfo tokenInfo =
-    //     await UserApi.instance.accessTokenInfo();
-    //     print('토큰 유효성 체크 성공 ${tokenInfo.id} ${tokenInfo.expiresIn}');
-    //     print('토큰 정보 보기 성공'
-    //         '\n회원정보: ${tokenInfo.id}'
-    //         '\n만료시간: ${tokenInfo.expiresIn} 초');
-    //   } catch (error) {
-    //     if (error is KakaoException && error.isInvalidTokenError()) {
-    //       print('토큰 만료 $error');
-    //     } else {
-    //       print('토큰 정보 조회 실패 $error');
-    //     }
-    //
-    //     try {
-    //       // 카카오계정으로 로그인
-    //       OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-    //       print('로그인 성공 ${token.accessToken}');
-    //     } catch (error) {
-    //       print('로그인 실패 $error');
-    //     }
-    //   }
-    // } else {
-    //   print('발급된 토큰 없음');
-    //   try {
-    //     OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-    //     print('로그인 성공 ${token.accessToken}');
-    //   } catch (error) {
-    //     print('로그인 실패 $error');
-    //   }
-    // }
-  }
+  // Future<void> signWithKakao() async {
+  //   bool isInstalled = await isKakaoTalkInstalled();
+  //   // 카카오 로그인 구현 예제
+  //   // 카카오톡 실행 가능 여부 확인
+  //   // 카카오톡 실행이 가능하면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
+  //   if (await isKakaoTalkInstalled()) {
+  //     try {
+  //       await UserApi.instance.loginWithKakaoTalk();
+  //       print('카카오톡으로 로그인 성공');
+  //     } catch (error) {
+  //       print('카카오톡으로 로그인 실패 $error');
+  //
+  //       // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
+  //       // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
+  //       if (error is PlatformException && error.code == 'CANCELED') {
+  //         return;
+  //       }
+  //       // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
+  //       try {
+  //         await UserApi.instance.loginWithKakaoAccount();
+  //         // 토큰을 받은 후의 로직 추가
+  //         print('카카오계정으로 로그인 성공22');
+  //
+  //       } catch (error) {
+  //         print('카카오계정으로 로그인 실패 $error');
+  //         print(await KakaoSdk.origin);
+  //       }
+  //     }
+  //   } else {
+  //     try {
+  //       await UserApi.instance.loginWithKakaoAccount();
+  //       OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+  //       print("카카오톡 로그인 성공 ${token.accessToken}");
+  //
+  //       // Firebase 서버로 인증 코드 전송
+  //       final firebaseToken = await _sendAuthCodeToServer(token.accessToken);
+  //       print("Firebase Custom Token 받음: $firebaseToken");
+  //
+  //       // Firebase에 로그인
+  //       // await firebase.FirebaseAuth.instance.signInWithCustomToken(firebaseToken);
+  //       print("Firebase 로그인 성공");
+  //
+  //       // SharedPreferences에 액세스 토큰 저장
+  //       SharedPreferences prefs = await SharedPreferences.getInstance();
+  //       prefs.setString('kakao_access_token', token.accessToken);
+  //       print("액세스 토큰 저장 성공");
+  //       String accessToken = token.accessToken;
+  //       String? refreshToken = token.refreshToken;
+  //       OAuthToken token1 = await UserApi.instance
+  //           .loginWithKakaoAccount(prompts: [Prompt.login]);
+  //       user = await UserApi.instance.me();
+  //
+  //       // final customToken = await _firbaseAuthDataSource.createCustomToken({
+  //       //   'uid' : user!.id.toString(),
+  //       //   'displayName' : user!.kakaoAccount!.profile!.nickname,
+  //       //   if (user!.kakaoAccount!.email != null)
+  //       //     'email': '${user!.id}@example.com',
+  //       //   if (user!.kakaoAccount!.profile!.profileImageUrl != null)
+  //       //     'photoURL': user!.kakaoAccount!.profile!.profileImageUrl!,
+  //       // });
+  //       // await firebase.FirebaseAuth.instance.signInWithCustomToken(customToken);
+  //       print('로그인 성공 ${token1.accessToken}');
+  //       print('카카오계정으로 로그인 성공33');
+  //       AccessTokenInfo tokenInfo =
+  //       await UserApi.instance.accessTokenInfo();
+  //       print('토큰 유효성 체크 성공 ${tokenInfo.id} ${tokenInfo.expiresIn}');
+  //       print(accessToken);
+  //       print(refreshToken);
+  //     } catch (error) {
+  //       print('카카오계정으로 로그인 실패 $error');
+  //       print(await KakaoSdk.origin);
+  //     }
+  //   }
+  //   // if (await AuthApi.instance.hasToken()) {
+  //   //   try {
+  //   //     AccessTokenInfo tokenInfo =
+  //   //     await UserApi.instance.accessTokenInfo();
+  //   //     print('토큰 유효성 체크 성공 ${tokenInfo.id} ${tokenInfo.expiresIn}');
+  //   //     print('토큰 정보 보기 성공'
+  //   //         '\n회원정보: ${tokenInfo.id}'
+  //   //         '\n만료시간: ${tokenInfo.expiresIn} 초');
+  //   //   } catch (error) {
+  //   //     if (error is KakaoException && error.isInvalidTokenError()) {
+  //   //       print('토큰 만료 $error');
+  //   //     } else {
+  //   //       print('토큰 정보 조회 실패 $error');
+  //   //     }
+  //   //
+  //   //     try {
+  //   //       // 카카오계정으로 로그인
+  //   //       OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+  //   //       print('로그인 성공 ${token.accessToken}');
+  //   //     } catch (error) {
+  //   //       print('로그인 실패 $error');
+  //   //     }
+  //   //   }
+  //   // } else {
+  //   //   print('발급된 토큰 없음');
+  //   //   try {
+  //   //     OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+  //   //     print('로그인 성공 ${token.accessToken}');
+  //   //   } catch (error) {
+  //   //     print('로그인 실패 $error');
+  //   //   }
+  //   // }
+  // }
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -381,7 +379,7 @@ class _LoginState extends State<Login> {
                       iconSize: 30.0,
                       onPressed: (){
                         //카카오톡 간편로그인버튼
-                        signWithKakao();
+                        // signWithKakao();
                       },
                     )
                   ],
@@ -403,7 +401,8 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                   ],
-                )
+                ),
+
               ],
             ),
           ),

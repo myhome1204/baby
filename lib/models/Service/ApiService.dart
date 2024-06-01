@@ -49,11 +49,15 @@ class ApiService {
     return response;
   }
 
-  Future<http.Response> giveEight(String eight,String token) async {
-    final url = Uri.parse('$baseUrl/saju/saju-text');
+  Future<http.Response> giveEight(Map<String, String> eight, String token) async {
+    final url = Uri.parse('$baseUrl/saju/save-text');
     final body = jsonEncode({
       'eight': eight
     });
+
+    // eight 값 출력하여 확인
+    print("Sending eight: $eight");
+
     final response = await http.post(
       url,
       headers: {
@@ -64,6 +68,7 @@ class ApiService {
     );
     return response;
   }
+
   Future<http.Response> getMemberInfo(String token) async {
     final url = Uri.parse('$baseUrl/members/member-info');
     final response = await http.get(

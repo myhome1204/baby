@@ -64,6 +64,7 @@ class _SignUpThirdState extends State<SignUpThird> {
           _lunIljin = lunIljin;
           _lunWolgeon = lunWolgeon;
           _lunSecha= lunSecha;
+
         });
       }
     } else {
@@ -93,6 +94,7 @@ class _SignUpThirdState extends State<SignUpThird> {
     );
   }
   String getResult(String day, String hour, String minute) {
+    print("hour : ${hour}  minute  : ${minute}");
     Map<String, List<String>> timeMapping = {
       "23:30 ~ 01:30": ["갑자", "무자", "병자", "정자", "무자"],
       "01:30 ~ 03:30": ["을축", "경축", "정축", "신축", "계축"],
@@ -125,6 +127,7 @@ class _SignUpThirdState extends State<SignUpThird> {
     // int minute = int.parse(time.split('-')[1]);
 
     String? timePeriod = getTimePeriod(int.parse(hour),int.parse(minute));
+    print("timePeriod : ${timePeriod}");
     if (timePeriod == null || !dayMapping.containsKey(day)) {
       return "Invalid input";
     }
@@ -133,35 +136,39 @@ class _SignUpThirdState extends State<SignUpThird> {
     return timeMapping[timePeriod]![dayIndex];
   }
   String? getTimePeriod(int hour, int minute) {
-    if ((hour == 23 && minute >= 30) || (hour == 0 && minute < 30) || (hour == 1 && minute < 30)) {
+    if ((hour == 23 && minute >= 30) || (hour == 0 && minute < 30)) {
       return "23:30 ~ 01:30";
-    } else if ((hour == 1 && minute >= 30) || (hour == 2 && minute < 30) || (hour == 3 && minute < 30)) {
+    } else if ((hour == 1 && minute >= 30) || (hour == 2 && minute < 30)) {
       return "01:30 ~ 03:30";
-    } else if ((hour == 3 && minute >= 30) || (hour == 4 && minute < 30) || (hour == 5 && minute < 30)) {
+    } else if ((hour == 3 && minute >= 30) || (hour == 4 && minute < 30)) {
       return "03:30 ~ 05:30";
-    } else if ((hour == 5 && minute >= 30) || (hour == 6 && minute < 30) || (hour == 7 && minute < 30)) {
+    } else if ((hour == 5 && minute >= 30) || (hour == 6 && minute < 30)) {
       return "05:30 ~ 07:30";
-    } else if ((hour == 7 && minute >= 30) || (hour == 8 && minute < 30) || (hour == 9 && minute < 30)) {
+    } else if ((hour == 7 && minute >= 30) || (hour == 8 && minute < 30)) {
       return "07:30 ~ 09:30";
-    } else if ((hour == 9 && minute >= 30) || (hour == 10 && minute < 30) || (hour == 11 && minute < 30)) {
+    } else if ((hour == 9 && minute >= 30) || (hour == 10 && minute < 30)) {
       return "09:30 ~ 11:30";
-    } else if ((hour == 11 && minute >= 30) || (hour == 12 && minute < 30) || (hour == 13 && minute < 30)) {
+    } else if ((hour == 11 && minute >= 30) || (hour == 12 && minute < 30)) {
       return "11:30 ~ 13:30";
-    } else if ((hour == 13 && minute >= 30) || (hour == 14 && minute < 30) || (hour == 15 && minute < 30)) {
+    } else if ((hour == 13 && minute >= 30) || (hour == 14 && minute < 30)) {
       return "13:30 ~ 15:30";
-    } else if ((hour == 15 && minute >= 30) || (hour == 16 && minute < 30) || (hour == 17 && minute < 30)) {
+    } else if ((hour == 15 && minute >= 30) || (hour == 16 && minute < 30)) {
       return "15:30 ~ 17:30";
-    } else if ((hour == 17 && minute >= 30) || (hour == 18 && minute < 30) || (hour == 19 && minute < 30)) {
+    } else if ((hour == 17 && minute >= 30) || (hour == 18 && minute < 30)) {
       return "17:30 ~ 19:30";
-    } else if ((hour == 19 && minute >= 30) || (hour == 20 && minute < 30) || (hour == 21 && minute < 30)) {
+    } else if ((hour == 19 && minute >= 30) || (hour == 20 && minute < 30)) {
       return "19:30 ~ 21:30";
-    } else if ((hour == 21 && minute >= 30) || (hour == 22 && minute < 30) || (hour == 23 && minute < 30)) {
+    } else if ((hour == 21 && minute >= 30) || (hour == 22 && minute < 30)) {
       return "21:30 ~ 23:30";
+    } else if ((hour == 23 && minute >= 0 && minute < 30) || (hour == 0 && minute >= 30) || (hour == 1 && minute < 30)) {
+      return "23:30 ~ 01:30"; // 이 시간대가 두 번 정의되므로 위에 겹치는 시간 제거
     } else {
       return null;
     }
   }
-  void createSajuText() async {
+
+
+  Future<void> createSajuText() async {
     final birthTime = DateTime(
       0,
       1,
@@ -174,9 +181,16 @@ class _SignUpThirdState extends State<SignUpThird> {
     final formattedBirthTime = '$formattedTime.728Z';
     widget.signUpData.birthTime = formattedBirthTime;
     widget.signUpData.birthTime = formattedBirthTime;
-    _fetchLunarInfo(widget.signUpData.birthDate!.split('-')[0],
+    await _fetchLunarInfo(widget.signUpData.birthDate!.split('-')[0],
         widget.signUpData.birthDate!.split('-')[1],
         widget.signUpData.birthDate!.split('-')[2]);
+    print(_lunIljin);
+    print(_lunWolgeon);
+    print(_lunSecha);
+    print((_lunIljin.substring(0, 1)));
+    print(widget.signUpData.birthTime!.split(':')[0]);
+    print( widget.signUpData.birthTime!.split(':')[1]);
+
     String result = getResult(_lunIljin.substring(0, 1),
         widget.signUpData.birthTime!.split(':')[0] ,
         widget.signUpData.birthTime!.split(':')[1]);
@@ -185,8 +199,15 @@ class _SignUpThirdState extends State<SignUpThird> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('eight', eight);
     String? temp = prefs.getString('eight');
-
     print("eight : ${temp}");
+  }
+
+  Map<String, String> changeEight(String eight) {
+    Map<String, String> myMap = {};
+    for (int i = 0; i < eight.length; i++) {
+      myMap[(i + 1).toString()] = eight[i];
+    }
+    return myMap;
   }
   void _registerAndNextPage() async {
     // 시간 형식화
@@ -222,10 +243,27 @@ class _SignUpThirdState extends State<SignUpThird> {
     print(user.birthTime);
 
     final response = await apiService.createMember(user);
-
+    var token = "";
     if (response.statusCode == 201) {
       // 회원가입 성공
-      createSajuText();
+      await createSajuText();
+      final prefs = await SharedPreferences.getInstance();
+      String saju = prefs.getString('eight')!!;
+      // 토큰받아오기 로그인 API 사용
+      final getToken = await apiService.logIn(user.userId,user.password);
+      if (getToken.statusCode == 200) {
+        print("로그인 토큰가져오기 성공");
+        final responseData = jsonDecode(getToken.body);
+        token = responseData['access_token'];
+        await prefs.setString('auth_token', token);
+        String? temp = prefs.getString('auth_token');
+        print(temp);
+        Map<String, String> sajuMap = changeEight(saju);
+        final response_saju = await apiService.giveEight(sajuMap,token);
+        if(response_saju.statusCode ==201){
+          print("사주풀이 잘보냈습니다.");
+        }
+      }
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -332,7 +370,9 @@ class _SignUpThirdState extends State<SignUpThird> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               ElevatedButton(
-                onPressed:createSajuText,
+                onPressed: () {
+                _registerAndNextPage();
+                  },
                 // _registerAndNextPage,
                 child: Text(
                   '다음으로',
