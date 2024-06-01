@@ -68,7 +68,12 @@ class _SignUpFirstState extends State<SignUpFirst> {
           },
         ),
       ),
-      body: Column(
+      body: GestureDetector(onTap: () {
+      FocusScope.of(context).unfocus();
+    },
+    child: SingleChildScrollView(
+        child :
+      Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           SizedBox(height: 5),
@@ -287,6 +292,8 @@ class _SignUpFirstState extends State<SignUpFirst> {
           ),
         ],
       ),
+    ),
+    )
     );
   }
 }

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:untitled3/models/signup_data/User.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://port-0-baby-monk-rm6l2llwb02l9k.sel5.cloudtype.app'; // API 기본 URL
+  static const String baseUrl = 'https://port-0-baby-monk-logic-rm6l2llwb02l9k.sel5.cloudtype.app'; // API 기본 URL
 
   Future<http.Response> createMember(User user) async {
     final url = Uri.parse('$baseUrl/members');

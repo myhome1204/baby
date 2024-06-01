@@ -203,7 +203,216 @@ class _LoginState extends State<Login> {
   // }
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return GestureDetector(onTap: () {
+      FocusScope.of(context).unfocus();
+    },
+      child:  SingleChildScrollView(
+          child : Center(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Image(
+                    image: AssetImage('assets/images/candle.png'),
+                    width: 50,
+                    height: 50,),
+                  SizedBox(height: 10),
+                  Text(
+                    '애기동자와 함께\n나의 사주 알아보기',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontStyle:FontStyle.italic,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 60),
+                  Container(
+                    height: 50, // 원하는 높이 설정
+                    child: TextField(
+                      controller: _userIdController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderSide: BorderSide.none),
+                        filled: true,
+                        fillColor: Color.fromRGBO(240, 240, 240, 1.0),
+                        labelText: '아이디',
+                        labelStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Container(
+                    height: 50,
+                    child: TextField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderSide: BorderSide.none),
+                        filled: true,
+                        fillColor: Color.fromRGBO(240, 240, 240, 1.0),
+                        labelText: '비밀번호',
+                        labelStyle: TextStyle(color: Colors.grey.withOpacity(0.5)),),
+
+                      obscureText: true,
+                    ),
+                  ),
+
+                  SizedBox(height: 5.0),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Checkbox(value: isChecked,
+                        onChanged: (value){
+                          setState(() {
+                            isChecked = value!;
+                            _saveAutoLoginInfo();
+                          });
+                        },checkColor: Colors.black, // 체크된 상태의 색상
+                        fillColor: MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.selected)) {
+                              // 체크된 상태일 때 색상 설정
+                              return Colors.grey.withOpacity(0.5); // 흐릿한 회색 설정
+                            }
+                            // 체크되지 않은 상태일 때 색상 설정
+                            return Colors.grey.withOpacity(0.1); // 흐릿한 회색 설정
+                          },
+                        ),
+                      ),
+                      Text(
+                        '자동로그인',
+                        style: TextStyle(
+                            fontSize: 10
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      ElevatedButton(
+                        onPressed: () {
+                          //  로그인 버튼을 눌렀을때 작업해야할곳
+                          if(_userIdController.text.length ==0){
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('아이디를 입력하세요')));
+                            return ;
+                          }
+                          if(_passwordController.text.length ==0){
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('비밀번호를 입력하세요')));
+                            return ;
+                          }
+                          print(_userIdController.text);
+                          print(_passwordController.text);
+                          logInUser(_userIdController.text,_passwordController.text);
+                        },
+                        child: Text('로그인하기'
+                          ,style: TextStyle(color: Colors.white),),
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10), // 0으로 지정하면 모서리가 각진 사각형이 됩니다.
+                          ),
+                          minimumSize: Size(300, 50),
+                          backgroundColor: Colors.deepOrange,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      TextButton(
+                        onPressed: (){
+                          //아이디/비밀번호 찾기 기능
+                        },
+                        child: Text('아이디 찾기',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),),
+                      ),
+                      Text('|',
+                        style: TextStyle(
+                          fontSize: 10,
+                        ),),
+                      TextButton(
+                        onPressed: (){
+                          //아이디/비밀번호 찾기 기능
+                        },
+                        child: Text('비밀번호 찾기',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),),
+                      ),
+                      Text('|',
+                        style: TextStyle(
+                          fontSize: 10,
+                        ),),
+                      TextButton(
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => (SignUpFirst())),);
+                          //회원가입 기능
+                        },
+                        child: Text('회원가입',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text('간편로그인',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),),
+                    ],
+                  ),
+                  SizedBox(height: 10.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Image.asset('assets/images/kakao_login_medium_narrow.png'),
+                        iconSize: 30.0,
+                        onPressed: (){
+                          //카카오톡 간편로그인버튼
+                          // signWithKakao();
+                        },
+                      )
+                    ],
+                  ),
+                  SizedBox(width: 20,)
+                  ,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      TextButton(
+                        onPressed: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => (Home())),);
+                        },
+                        child: Text('임시버튼입니다. 이거눌러주세요',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                ],
+              ),
+            ),
+          )
+      )
+    );
+      SingleChildScrollView(
         child : Center(
           child: Padding(
             padding: EdgeInsets.all(16.0),
