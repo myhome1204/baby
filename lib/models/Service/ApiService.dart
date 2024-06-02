@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:untitled3/models/signup_data/User.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://port-0-baby-monk-rm6l2llwb02l9k.sel5.cloudtype.app'; // API 기본 URL
+  static const String baseUrl = 'https://port-0-baby-monk-logic-rm6l2llwb02l9k.sel5.cloudtype.app'; // API 기본 URL
 
   Future<http.Response> createMember(User user) async {
     final url = Uri.parse('$baseUrl/members');
@@ -49,11 +49,15 @@ class ApiService {
     return response;
   }
 
-  Future<http.Response> giveEight(String eight,String token) async {
-    final url = Uri.parse('$baseUrl/saju/saju-text');
+  Future<http.Response> giveEight(Map<String, String> eight, String token) async {
+    final url = Uri.parse('$baseUrl/saju/save-text');
     final body = jsonEncode({
       'eight': eight
     });
+
+    // eight 값 출력하여 확인
+    print("Sending eight: $eight");
+
     final response = await http.post(
       url,
       headers: {
@@ -64,6 +68,7 @@ class ApiService {
     );
     return response;
   }
+
   Future<http.Response> getMemberInfo(String token) async {
     final url = Uri.parse('$baseUrl/members/member-info');
     final response = await http.get(
@@ -97,6 +102,7 @@ class ApiService {
     );
     return response;
   }
+
   Future<http.Response> getMemberBirthday(String token) async {
     final url = Uri.parse('$baseUrl/members/member-birthday');
     final response = await http.get(
@@ -108,8 +114,10 @@ class ApiService {
     );
     return response;
   }
+
+
   Future<http.Response> getMemberBirthdayTime(String token) async {
-    final url = Uri.parse('$baseUrl/members/member-birthdaytime');
+    final url = Uri.parse('$baseUrl/members/member-birthtime');
     final response = await http.get(
       url,
       headers: {
@@ -119,9 +127,19 @@ class ApiService {
     );
     return response;
   }
-
-  Future<http.Response> sendMessage(String message,String token) async {
-    final url = Uri.parse('$baseUrl/chatrooms/message');
+  Future<http.Response> chatrooms(String token) async {
+    final url = Uri.parse('$baseUrl/chatrooms');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    return response;
+  }
+  Future<http.Response> sendMessage(String message, String token) async {
+    final url = Uri.parse('$baseUrl/chatrooms/message-user');
     final body = jsonEncode({
       'message': message
     });
@@ -135,4 +153,65 @@ class ApiService {
     );
     return response;
   }
+
+  Future<http.Response> receivedMessage(String token) async {
+    final url = Uri.parse('$baseUrl/chatrooms/message-ai');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    return response;
+  }
+
+  Future<http.Response> update_email(String email, String token) async {
+    final url = Uri.parse('$baseUrl/members/update-email');
+    final body = jsonEncode({
+      'email': email
+    });
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: body,
+    );
+    return response;
+  }
+
+  Future<http.Response> updatebirthday(String birth_date, String token) async {
+    final url = Uri.parse('$baseUrl/members/update-birthday');
+    final body = jsonEncode({
+      'birth_date': birth_date
+    });
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: body,
+    );
+    return response;
+  }
+
+  Future<http.Response> updatebirthtime(String birth_time, String token) async {
+    final url = Uri.parse('$baseUrl/members/update-birthtime');
+    final body = jsonEncode({
+      'birth_time': birth_time
+    });
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: body,
+    );
+    return response;
+  }
+
 }

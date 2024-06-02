@@ -64,6 +64,7 @@ class _SignUpThirdState extends State<SignUpThird> {
           _lunIljin = lunIljin;
           _lunWolgeon = lunWolgeon;
           _lunSecha= lunSecha;
+
         });
       }
     } else {
@@ -93,6 +94,7 @@ class _SignUpThirdState extends State<SignUpThird> {
     );
   }
   String getResult(String day, String hour, String minute) {
+    print("hour : ${hour}  minute  : ${minute}");
     Map<String, List<String>> timeMapping = {
       "23:30 ~ 01:30": ["갑자", "무자", "병자", "정자", "무자"],
       "01:30 ~ 03:30": ["을축", "경축", "정축", "신축", "계축"],
@@ -125,6 +127,7 @@ class _SignUpThirdState extends State<SignUpThird> {
     // int minute = int.parse(time.split('-')[1]);
 
     String? timePeriod = getTimePeriod(int.parse(hour),int.parse(minute));
+    print("timePeriod : ${timePeriod}");
     if (timePeriod == null || !dayMapping.containsKey(day)) {
       return "Invalid input";
     }
@@ -133,35 +136,39 @@ class _SignUpThirdState extends State<SignUpThird> {
     return timeMapping[timePeriod]![dayIndex];
   }
   String? getTimePeriod(int hour, int minute) {
-    if ((hour == 23 && minute >= 30) || (hour == 0 && minute < 30) || (hour == 1 && minute < 30)) {
+    if ((hour == 23 && minute >= 30) || (hour == 0 && minute < 30)) {
       return "23:30 ~ 01:30";
-    } else if ((hour == 1 && minute >= 30) || (hour == 2 && minute < 30) || (hour == 3 && minute < 30)) {
+    } else if ((hour == 1 && minute >= 30) || (hour == 2 && minute < 30)) {
       return "01:30 ~ 03:30";
-    } else if ((hour == 3 && minute >= 30) || (hour == 4 && minute < 30) || (hour == 5 && minute < 30)) {
+    } else if ((hour == 3 && minute >= 30) || (hour == 4 && minute < 30)) {
       return "03:30 ~ 05:30";
-    } else if ((hour == 5 && minute >= 30) || (hour == 6 && minute < 30) || (hour == 7 && minute < 30)) {
+    } else if ((hour == 5 && minute >= 30) || (hour == 6 && minute < 30)) {
       return "05:30 ~ 07:30";
-    } else if ((hour == 7 && minute >= 30) || (hour == 8 && minute < 30) || (hour == 9 && minute < 30)) {
+    } else if ((hour == 7 && minute >= 30) || (hour == 8 && minute < 30)) {
       return "07:30 ~ 09:30";
-    } else if ((hour == 9 && minute >= 30) || (hour == 10 && minute < 30) || (hour == 11 && minute < 30)) {
+    } else if ((hour == 9 && minute >= 30) || (hour == 10 && minute < 30)) {
       return "09:30 ~ 11:30";
-    } else if ((hour == 11 && minute >= 30) || (hour == 12 && minute < 30) || (hour == 13 && minute < 30)) {
+    } else if ((hour == 11 && minute >= 30) || (hour == 12 && minute < 30)) {
       return "11:30 ~ 13:30";
-    } else if ((hour == 13 && minute >= 30) || (hour == 14 && minute < 30) || (hour == 15 && minute < 30)) {
+    } else if ((hour == 13 && minute >= 30) || (hour == 14 && minute < 30)) {
       return "13:30 ~ 15:30";
-    } else if ((hour == 15 && minute >= 30) || (hour == 16 && minute < 30) || (hour == 17 && minute < 30)) {
+    } else if ((hour == 15 && minute >= 30) || (hour == 16 && minute < 30)) {
       return "15:30 ~ 17:30";
-    } else if ((hour == 17 && minute >= 30) || (hour == 18 && minute < 30) || (hour == 19 && minute < 30)) {
+    } else if ((hour == 17 && minute >= 30) || (hour == 18 && minute < 30)) {
       return "17:30 ~ 19:30";
-    } else if ((hour == 19 && minute >= 30) || (hour == 20 && minute < 30) || (hour == 21 && minute < 30)) {
+    } else if ((hour == 19 && minute >= 30) || (hour == 20 && minute < 30)) {
       return "19:30 ~ 21:30";
-    } else if ((hour == 21 && minute >= 30) || (hour == 22 && minute < 30) || (hour == 23 && minute < 30)) {
+    } else if ((hour == 21 && minute >= 30) || (hour == 22 && minute < 30)) {
       return "21:30 ~ 23:30";
+    } else if ((hour == 23 && minute >= 0 && minute < 30) || (hour == 0 && minute >= 30) || (hour == 1 && minute < 30)) {
+      return "23:30 ~ 01:30"; // 이 시간대가 두 번 정의되므로 위에 겹치는 시간 제거
     } else {
       return null;
     }
   }
-  void createSajuText() async {
+
+
+  Future<void> createSajuText() async {
     final birthTime = DateTime(
       0,
       1,
@@ -174,9 +181,16 @@ class _SignUpThirdState extends State<SignUpThird> {
     final formattedBirthTime = '$formattedTime.728Z';
     widget.signUpData.birthTime = formattedBirthTime;
     widget.signUpData.birthTime = formattedBirthTime;
-    _fetchLunarInfo(widget.signUpData.birthDate!.split('-')[0],
+    await _fetchLunarInfo(widget.signUpData.birthDate!.split('-')[0],
         widget.signUpData.birthDate!.split('-')[1],
         widget.signUpData.birthDate!.split('-')[2]);
+    print(_lunIljin);
+    print(_lunWolgeon);
+    print(_lunSecha);
+    print((_lunIljin.substring(0, 1)));
+    print(widget.signUpData.birthTime!.split(':')[0]);
+    print( widget.signUpData.birthTime!.split(':')[1]);
+
     String result = getResult(_lunIljin.substring(0, 1),
         widget.signUpData.birthTime!.split(':')[0] ,
         widget.signUpData.birthTime!.split(':')[1]);
@@ -186,6 +200,14 @@ class _SignUpThirdState extends State<SignUpThird> {
     await prefs.setString('eight', eight);
     String? temp = prefs.getString('eight');
     print("eight : ${temp}");
+  }
+
+  Map<String, String> changeEight(String eight) {
+    Map<String, String> myMap = {};
+    for (int i = 0; i < eight.length; i++) {
+      myMap[(i + 1).toString()] = eight[i];
+    }
+    return myMap;
   }
   void _registerAndNextPage() async {
     // 시간 형식화
@@ -221,11 +243,27 @@ class _SignUpThirdState extends State<SignUpThird> {
     print(user.birthTime);
 
     final response = await apiService.createMember(user);
-
+    var token = "";
     if (response.statusCode == 201) {
-      print("회원가입성공");
       // 회원가입 성공
-      createSajuText();
+      await createSajuText();
+      final prefs = await SharedPreferences.getInstance();
+      String saju = prefs.getString('eight')!!;
+      // 토큰받아오기 로그인 API 사용
+      final getToken = await apiService.logIn(user.userId,user.password);
+      if (getToken.statusCode == 200) {
+        print("로그인 토큰가져오기 성공");
+        final responseData = jsonDecode(getToken.body);
+        token = responseData['access_token'];
+        await prefs.setString('auth_token', token);
+        String? temp = prefs.getString('auth_token');
+        print(temp);
+        Map<String, String> sajuMap = changeEight(saju);
+        final response_saju = await apiService.giveEight(sajuMap,token);
+        if(response_saju.statusCode ==201){
+          print("사주풀이 잘보냈습니다.");
+        }
+      }
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -241,115 +279,123 @@ class _SignUpThirdState extends State<SignUpThird> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('회원가입'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        appBar: AppBar(
+          title: Text('회원가입'),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
         ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(height: 5),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              SizedBox(width: 15),
-              Text(
-                '3/3',
-                style: TextStyle(color: Colors.grey.withOpacity(0.5), fontSize: 15),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              SizedBox(width: 15),
-              Text(
-                '태어난시',
-                style: TextStyle(color: Colors.black, fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              SizedBox(width: 10),
-              Text(
-                '태어난 시간을 입력하면 \n더 자세히 분석해 드릴 수 있어요!.',
-                style: TextStyle(color: Colors.grey.withOpacity(0.8), fontSize: 15),
-              ),
-            ],
-          ),
-          SizedBox(height: 50),
-          Stack(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.9,
-                color: Color.fromRGBO(240, 240, 240, 1.0),
-                padding: EdgeInsets.all(20.0),
-                child: Column(
+        body: GestureDetector(onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+          child: SingleChildScrollView(
+            child : Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: 5),
+                Row(
                   mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
+                    SizedBox(width: 15),
                     Text(
-                      '선택한 시간: ${selectedHour.toString().padLeft(2, '0')} 시 ${selectedMinute.toString().padLeft(2, '0')} 분',
-                      style: TextStyle(fontSize: 18.0),
+                      '3/3',
+                      style: TextStyle(color: Colors.grey.withOpacity(0.5), fontSize: 15),
                     ),
                   ],
                 ),
-              ),
-              Positioned(
-                top: 5,
-                left: 270,
-                child: GestureDetector(
-                  onTap: () {
-                    _showCupertinoTimerPicker(context);
-                  },
-                  child: Container(
-                    width: 50.0,
-                    height: 50.0,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(width: 15),
+                    Text(
+                      '태어난시',
+                      style: TextStyle(color: Colors.black, fontSize: 30, fontWeight: FontWeight.bold),
                     ),
-                    child: Icon(
-                      Icons.access_time,
-                      size: 40.0,
-                      color: Colors.red,
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(width: 10),
+                    Text(
+                      '태어난 시간을 입력하면 \n더 자세히 분석해 드릴 수 있어요!.',
+                      style: TextStyle(color: Colors.grey.withOpacity(0.8), fontSize: 15),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-            ],
+                SizedBox(height: 50),
+                Stack(
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      color: Color.fromRGBO(240, 240, 240, 1.0),
+                      padding: EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '선택한 시간: ${selectedHour.toString().padLeft(2, '0')} 시 ${selectedMinute.toString().padLeft(2, '0')} 분',
+                            style: TextStyle(fontSize: 18.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      top: 5,
+                      left: 270,
+                      child: GestureDetector(
+                        onTap: () {
+                          _showCupertinoTimerPicker(context);
+                        },
+                        child: Container(
+                          width: 50.0,
+                          height: 50.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                          ),
+                          child: Icon(
+                            Icons.access_time,
+                            size: 40.0,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 300),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    ElevatedButton(
+                      onPressed: () {
+                        _registerAndNextPage();
+                      },
+                      // _registerAndNextPage,
+                      child: Text(
+                        '다음으로',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(300, 50),
+                        backgroundColor: Colors.deepOrange,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          SizedBox(height: 300),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                onPressed:_registerAndNextPage,
-                // _registerAndNextPage,
-                child: Text(
-                  '다음으로',
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  minimumSize: Size(300, 50),
-                  backgroundColor: Colors.deepOrange,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        )
     );
   }
 }

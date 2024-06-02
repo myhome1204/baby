@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:untitled3/screens/profile/ProfileEdit.dart';
 import 'package:untitled3/screens/profile/birthInput.dart';
 import 'package:untitled3/screens/profile/birthTimeInput.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled3/models/Service/ApiService.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main(){
   runApp(Profile());
 }
+String myname="";
+String userbirthdate = "";
+String userbirthtime = "";
 
 class Profile extends StatelessWidget{
   @override
@@ -29,6 +36,63 @@ class MyWidget extends StatefulWidget{
 
 class _MyWidgetState extends State<MyWidget>{
   @override
+  final apiService = ApiService();
+
+  Future<void> getmyname() async {
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString("auth_token")!;
+    var response = await apiService.getMemberName(token);
+    if (response.statusCode == 200) {
+      print("이름 받아옴");
+
+      final responseBody = utf8.decode(response.bodyBytes);
+      final responseData = jsonDecode(responseBody);
+      String output = responseData['name'];
+      setState(() {
+        myname = output;
+      });
+      print(myname);
+      //UI업뎃
+
+    }
+  }
+
+  Future<void> getbirthdate() async {
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString("auth_token")!;
+    var response = await apiService.getMemberBirthday(token);
+    if (response.statusCode == 200) {
+      print("생일 받아옴");
+      final output = jsonDecode(response.body);
+      userbirthdate = output['birth_date'];
+      print(userbirthdate);
+      //UI업뎃
+
+    }
+  }
+
+  Future<void> getbirthtime() async {
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString("auth_token")!;
+    var response = await apiService.getMemberBirthdayTime(token);
+    if (response.statusCode == 200) {
+      print("시간 받아옴");
+      final output = jsonDecode(response.body);
+      userbirthtime = output['birth_time'];
+      print(userbirthtime);
+      //UI업뎃
+
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getmyname();
+    getbirthdate();
+    getbirthtime();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: EmptyAppBar(),
@@ -53,10 +117,10 @@ class _MyWidgetState extends State<MyWidget>{
                   ),
                 ),
                 Positioned(
-                  left: 118,
-                  top: 77,
+                  left: 130,
+                  top: 50,
                   child: Text(
-                    'Test Text',
+                    '$myname님 \n 환영합니다',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -68,6 +132,7 @@ class _MyWidgetState extends State<MyWidget>{
                   top: 81,
                   child: GestureDetector(
                     onTap: () {
+                      getmyname();
                       Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => ProfileEdit())
@@ -91,7 +156,7 @@ class _MyWidgetState extends State<MyWidget>{
                   left: 92,
                   top: 154,
                   child: Text(
-                    'Test Text',
+                    userbirthdate,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -104,6 +169,7 @@ class _MyWidgetState extends State<MyWidget>{
                   child: GestureDetector(
                     behavior: HitTestBehavior.translucent, // 터치 이벤트를 투명한 부분도 포함하여 처리
                     onTap: () {
+                      getbirthdate();
                       Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => birthInput())
@@ -126,7 +192,7 @@ class _MyWidgetState extends State<MyWidget>{
                   left: 118,
                   top: 193,
                   child: Text(
-                    'Test Text',
+                    userbirthtime,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -138,6 +204,7 @@ class _MyWidgetState extends State<MyWidget>{
                   top: 195,
                   child: GestureDetector(
                     onTap: () {
+                      getbirthtime();
                       Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => birthTimeInput())

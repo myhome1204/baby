@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
 import 'package:untitled3/models/Service/ApiService.dart';
 
 void main() => runApp(Chat());
 
-const String _name = "Jerry";
-const String yourname = "other";
+String _name = "Jerry";
+const String yourname = "아기동자";
 String userMessage = "";
 String aiMessage = "";
 
 class Chat extends StatelessWidget {
+  get context => null;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "FriendlychatApp",
       home: ChatScreen(),
     );
+  }
+
+  Future<void> saveMessagesForUser(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final chatScreenState = context.findAncestorStateOfType<ChatScreenState>();
+    if (chatScreenState != null) {
+      await chatScreenState.saveMessagesForUser(userId);
+    }
   }
 }
 
@@ -33,32 +42,74 @@ class ChatScreenState extends State<ChatScreen> {
   final FocusNode _focusNode = FocusNode(); // FocusNode를 추가하여 포커스 제어
   bool _isUserMessage = true; // 메시지가 사용자 메시지인지 여부를 나타내는 변수
   SharedPreferences? _prefs;
+  String? _userId; // 사용자 ID를 저장할 변수
+
+  Future<void> makeChatroom() async {
+    print("makeChatroom 함수는 시작됨");
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString("auth_token")!;
+    print("token : ${token}");
+    final response = await apiService.chatrooms(token);
+    if (response.statusCode == 200) {
+      print("makeChatroom!!");
+    } else {
+      print("Error: ${response.statusCode}");
+      print("Response body: ${response.body}");
+    }
+  }
+
+  Future<void> sendMessage(String message) async {
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString("auth_token")!;
+    var response = await apiService.sendMessage(message, token);
+    if (response.statusCode == 200) {
+      print("ai한테 메시지 전달 성공");
+    }
+  }
+
+  Future<void> receivedMessage() async {
+    print("received 함수는 실행됨");
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString("auth_token")!;
+    var response = await apiService.receivedMessage(token);
+    if (response.statusCode == 200) {
+      print("ai한테 답 받아옴");
+
+      // 응답 본문을 UTF-8로 디코딩
+      final responseBody = utf8.decode(response.bodyBytes);
+      final responseData = jsonDecode(responseBody);
+      String output = responseData['message'];
+      aiMessage = output;
+      print("aiMessage : $aiMessage");
+
+      var message = ChatMessage(
+        text: aiMessage,
+        isUserMessage: false,
+      );
+      setState(() {
+        _messages.insert(0, message);
+      });
+      _saveMessages();
+    }
+  }
 
   @override
-  void initState() {/*_loadMessages와 _saveMessages 메서드를 추가하여 메시지를 로드하고 저장
-    _loadMessages는 SharedPreferences에서 메시지 리스트를 불러오고 _saveMessages는 메시지를 저장*/
+  void initState() {
     super.initState();
+    _loadUserId();
+    makeChatroom();
     _loadMessages();
   }
 
-  //_isUserMessage 이새끼가 true인지부터 확인
-  //그게 맞으면 sendMessage 실행 비동기로 해야 돼요
-
-  void sendMessage(String message) async {
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('auth_token');
-
-    final response = await apiService.sendMessage(message,token!!);
-    if(response.statusCode == 200){
-      aiMessage = response.body ;
-      // aiMessage이거를 화면에 띄우는 작업 함수로만들던
-      // 로그 저장하는 작업
-      // _isUserMessage True false 바꾸기
-    }
+  Future<void> _loadUserId() async {
+    _prefs = await SharedPreferences.getInstance();
+    _userId = _prefs?.getString('user_id');
+    _name = _userId!!;
   }
+
   Future<void> _loadMessages() async {
     _prefs = await SharedPreferences.getInstance();
-    String? messagesString = _prefs?.getString('messages');
+    String? messagesString = _prefs?.getString('messages_$_userId');
     if (messagesString != null) {
       List<dynamic> messagesJson = jsonDecode(messagesString);
       setState(() {
@@ -69,19 +120,28 @@ class ChatScreenState extends State<ChatScreen> {
 
   Future<void> _saveMessages() async {
     List<Map<String, dynamic>> messagesJson = _messages.map((message) => message.toJson()).toList();
-    await _prefs?.setString('messages', jsonEncode(messagesJson));
+    await _prefs?.setString('messages_$_userId', jsonEncode(messagesJson));
   }
 
-  void _handleSubmitted(String text) {
+  // 사용자가 로그아웃할 때 호출하여 메시지 저장
+  Future<void> saveMessagesForUser(String userId) async {
+    _prefs = await SharedPreferences.getInstance();
+    List<Map<String, dynamic>> messagesJson = _messages.map((message) => message.toJson()).toList();
+    await _prefs?.setString('messages_$userId', jsonEncode(messagesJson));
+  }
+
+  Future<void> _handleSubmitted(String text) async {
     _textController.clear();
     var message = ChatMessage(
       text: text,
-      isUserMessage: _isUserMessage,
-    );//_handleSubmitted 메서드에서 메시지를 추가할 때마다 _saveMessages를 호출하여 로컬에 메시지를 저장
+      isUserMessage: true,
+    );
     setState(() {
       _messages.insert(0, message);
-      _isUserMessage = !_isUserMessage;
     });
+    userMessage = text;
+    await sendMessage(userMessage);
+    await receivedMessage();
     _saveMessages();
   }
 
@@ -184,7 +244,7 @@ class ChatMessage extends StatelessWidget {
   final bool isUserMessage; // 사용자인지 상대인지 나타내는 변수
 
   Map<String, dynamic> toJson() {
-    return {//ChatMessage 클래스에 toJson 및 fromJson 메서드를 추가하여 메시지를 JSON으로 변환하고 JSON에서 객체를 생성할 수 있도록 함
+    return {
       'text': text,
       'isUserMessage': isUserMessage,
     };
