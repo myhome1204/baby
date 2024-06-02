@@ -124,4 +124,42 @@ class ApiService {
     );
     return response;
   }
+  Future<http.Response> chatrooms(String token) async {
+    final url = Uri.parse('$baseUrl/chatrooms');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    return response;
+  }
+  Future<http.Response> sendMessage(String message, String token) async {
+    final url = Uri.parse('$baseUrl/chatrooms/message-user');
+    final body = jsonEncode({
+      'message': message
+    });
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: body,
+    );
+    return response;
+  }
+  Future<http.Response> receivedMessage(String token) async {
+    final url = Uri.parse('$baseUrl/chatrooms/message-ai');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    return response;
+  }
+
 }
