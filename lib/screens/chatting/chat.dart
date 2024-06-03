@@ -6,7 +6,7 @@ import 'package:untitled3/models/Service/ApiService.dart';
 void main() => runApp(Chat());
 
 String _name = "Jerry";
-const String yourname = "아기동자";
+const String yourname = "애기동자";
 String userMessage = "";
 String aiMessage = "";
 

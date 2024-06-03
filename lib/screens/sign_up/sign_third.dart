@@ -138,30 +138,52 @@ class _SignUpThirdState extends State<SignUpThird> {
   String? getTimePeriod(int hour, int minute) {
     if ((hour == 23 && minute >= 30) || (hour == 0 && minute < 30)) {
       return "23:30 ~ 01:30";
+    } else if ((hour == 0 && minute >= 30) || (hour == 1 && minute < 30)) {
+      return "23:30 ~ 01:30";
     } else if ((hour == 1 && minute >= 30) || (hour == 2 && minute < 30)) {
+      return "01:30 ~ 03:30";
+    } else if ((hour == 2 && minute >= 30) || (hour == 3 && minute < 30)) {
       return "01:30 ~ 03:30";
     } else if ((hour == 3 && minute >= 30) || (hour == 4 && minute < 30)) {
       return "03:30 ~ 05:30";
+    } else if ((hour == 4 && minute >= 30) || (hour == 5 && minute < 30)) {
+      return "03:30 ~ 05:30";
     } else if ((hour == 5 && minute >= 30) || (hour == 6 && minute < 30)) {
+      return "05:30 ~ 07:30";
+    } else if ((hour == 6 && minute >= 30) || (hour == 7 && minute < 30)) {
       return "05:30 ~ 07:30";
     } else if ((hour == 7 && minute >= 30) || (hour == 8 && minute < 30)) {
       return "07:30 ~ 09:30";
+    } else if ((hour == 8 && minute >= 30) || (hour == 9 && minute < 30)) {
+      return "07:30 ~ 09:30";
     } else if ((hour == 9 && minute >= 30) || (hour == 10 && minute < 30)) {
+      return "09:30 ~ 11:30";
+    } else if ((hour == 10 && minute >= 30) || (hour == 11 && minute < 30)) {
       return "09:30 ~ 11:30";
     } else if ((hour == 11 && minute >= 30) || (hour == 12 && minute < 30)) {
       return "11:30 ~ 13:30";
+    } else if ((hour == 12 && minute >= 30) || (hour == 13 && minute < 30)) {
+      return "11:30 ~ 13:30";
     } else if ((hour == 13 && minute >= 30) || (hour == 14 && minute < 30)) {
+      return "13:30 ~ 15:30";
+    } else if ((hour == 14 && minute >= 30) || (hour == 15 && minute < 30)) {
       return "13:30 ~ 15:30";
     } else if ((hour == 15 && minute >= 30) || (hour == 16 && minute < 30)) {
       return "15:30 ~ 17:30";
+    } else if ((hour == 16 && minute >= 30) || (hour == 17 && minute < 30)) {
+      return "15:30 ~ 17:30";
     } else if ((hour == 17 && minute >= 30) || (hour == 18 && minute < 30)) {
+      return "17:30 ~ 19:30";
+    } else if ((hour == 18 && minute >= 30) || (hour == 19 && minute < 30)) {
       return "17:30 ~ 19:30";
     } else if ((hour == 19 && minute >= 30) || (hour == 20 && minute < 30)) {
       return "19:30 ~ 21:30";
+    } else if ((hour == 20 && minute >= 30) || (hour == 21 && minute < 30)) {
+      return "19:30 ~ 21:30";
     } else if ((hour == 21 && minute >= 30) || (hour == 22 && minute < 30)) {
       return "21:30 ~ 23:30";
-    } else if ((hour == 23 && minute >= 0 && minute < 30) || (hour == 0 && minute >= 30) || (hour == 1 && minute < 30)) {
-      return "23:30 ~ 01:30"; // 이 시간대가 두 번 정의되므로 위에 겹치는 시간 제거
+    } else if ((hour == 22 && minute >= 30) || (hour == 23 && minute < 30)) {
+      return "21:30 ~ 23:30";
     } else {
       return null;
     }
